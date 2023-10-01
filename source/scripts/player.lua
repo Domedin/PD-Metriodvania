@@ -5,7 +5,7 @@ class('Player').extends(AnimatedSprite)
 
 function Player:init(x, y)
     -- State Machine
-    local playerImageTable = gfx.imagetable.new("images/Aesprite/player-table-8-8.png")
+    local playerImageTable = gfx.imagetable.new("images/Aesprite/player-table-16-16.aseprite")
     Player.super.init(self, playerImageTable)
 
     self:addState("idle", 1, 1)
@@ -14,16 +14,16 @@ function Player:init(x, y)
     self:playAnimation()
 
     --sprite properties 
-    self:move(x, y)
+    self:moveTo(x, y)
     self:setZIndex(Z_INDEXES.Player)
     self:setTag(TAGS.Player) -- 5, 7 collision rect
-    self:setCollideRect(3, 3, 5, 7)
+    self:setCollideRect(3, 3, 10, 14)
 
     -- physics properties
     self.xVelocity = 0
     self.yVelocity = 0
     self.gravity = 1
-    self.maxSpeed = 2.0
+    self.maxSpeed = 4.0
 
     -- Player State
     self.touchingGround = false
@@ -62,6 +62,12 @@ function Player:handleMovementAndCollisions()
             self.touchingGround = true
         end
     end
+
+    if self.xVelocity < 0 then
+        self.globalFlip = 1
+    elseif self.xVelocity > 0 then
+        self.globalFlip = 0
+    end
 end
 
 -- Input helper functions
@@ -71,7 +77,7 @@ function Player:handleGroundInput()
     elseif pd.buttonIsPressed(pd.kButtonRight) then
         self:changeToRunState("right")
     else
-        self:changeStateToIdleState()
+        self:changeToIdleState()
     end
 end
 
@@ -82,5 +88,20 @@ function Player:changeToIdleState()
 end
 
 function Player:changeToRunState(direction)
+    if direction == "left" then
+        self.xVelocity = -self.maxSpeed
+        self.globalFlip = 1
+    elseif direction == "right" then
+        self.xVelocity = self.maxSpeed
+        self.globalFlip = 0
+    end
+    self:changeState("run")
     
+end
+
+function Player:applyGravity()
+    self.yVelocity += self.gravity
+    if self.touchingGround then
+        self.yVelocity = 0
+    end
 end
