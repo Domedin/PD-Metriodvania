@@ -1,6 +1,14 @@
 local ldtk <const> = LDtk
 local gfx <const> = playdate.graphics
 
+TAGS = {
+    Player = 1
+}
+
+Z_INDEXES = {
+    Player = 100
+}
+
 ldtk.load("levels/world.ldtk", false)
 
 class('GameScene').extends()
